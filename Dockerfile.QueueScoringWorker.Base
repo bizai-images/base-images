@@ -1,0 +1,36 @@
+FROM jupyter/datascience-notebook:df7a34bebed0
+
+
+# Using 9.0.3 as 10.0.1 has issues
+RUN pip install pip==9.0.3
+
+RUN /bin/bash -c "git clone --recursive https://github.com/dmlc/xgboost && cd xgboost && make -j4 && cd python-package && python setup.py install"
+
+RUN /bin/bash -c "pip install git+https://github.com/anselmwang/incubator-airflow.git@lightflow"
+
+# Pip install directly as a docker command works better with rebuilding same layers of image. Using requirements.txt and 'pip install -r requirements.txt' causes packages to download and reinstall every time. 
+
+# pytables not found in pip, using conda install
+RUN /bin/bash -c "conda install -y pytables"
+
+# The following 'sudo apt-get's are to install dependencies for python 'cryptography' package
+USER root
+RUN /bin/bash -c "apt-get -y update"
+RUN /bin/bash -c "apt-get install -y build-essential libssl-dev libffi-dev python-dev"
+USER jovyan
+
+RUN /bin/bash -c "pip install cryptography==1.9"
+RUN /bin/bash -c "pip install pymssql==2.1.3"
+RUN /bin/bash -c "pip install phonenumbers==8.5.2"
+RUN /bin/bash -c "pip install tldextract==2.1.0"
+RUN /bin/bash -c "pip install nltk==3.2.4"
+RUN /bin/bash -c "pip install validate_email==1.3"
+RUN /bin/bash -c "pip install azure.servicebus==0.21.1"
+RUN /bin/bash -c "pip install flask==0.11.1"
+
+RUN /bin/bash -c "pip install azure.storage==0.34.3"
+RUN /bin/bash -c "pip install redis==2.10.5"
+RUN /bin/bash -c "pip install applicationinsights==0.10.0"
+RUN /bin/bash -c "pip install pandas==0.19.2"
+RUN /bin/bash -c "pip install pydocumentdb==2.3.1"
+RUN /bin/bash -c "pip install distance==0.1.3"
